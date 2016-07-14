@@ -1,0 +1,22 @@
+stages:
+  - build
+
+variables:
+  REGISTRY_HOST: git.webvariants.de:4567
+  IMAGE:  git.webvariants.de:4567/stack/auth-proxy
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $REGISTRY_HOST
+
+build-master:
+  stage: build
+  tags:
+    - docker-builder
+  script:
+    - 'if [ "1000000000" -lt "$(df --output=avail / | grep -v Avail)" ]; then echo "Disk space too low! Need 1GB free on /." ; exit 1; fi'
+    - docker build --pull --force-rm --memory 256MB --memory-swap 512MB -t $IMAGE:latest .
+    - docker push $IMAGE:latest
+  only:
+    - master
+  except:
+    - triggers
