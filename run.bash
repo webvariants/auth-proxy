@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ -z "${SKIP_CONF_GEN}" ]; then
+
 NGINX_PASSWORD_FILE=/etc/nginx/service.pwd
 
 if [ -z "${NGINX_PASSWORD_FILE}" ]; then
@@ -32,10 +34,6 @@ fi
 htpasswd -b -c ${NGINX_PASSWORD_FILE} ${PROXY_AUTH_USERNAME} ${PROXY_AUTH_PASSWORD}
 
 cat > /etc/nginx/conf.d/default.conf <<EOL
-upstream service {
-    server ${SERVICE_HOST}:${SERVICE_PORT};
-}
-
 server {
     listen 80 default_server;
     server_name localhost;
@@ -43,8 +41,16 @@ server {
     auth_basic "${PROXY_AUTH_TITLE}";
     auth_basic_user_file ${NGINX_PASSWORD_FILE};
 
+    resolver 127.0.0.1 valid=5s;
+
+    set \$dn "${SERVICE_HOST}";
+
     location / {
-        proxy_pass http://service;
+        proxy_pass http://\$dn:${SERVICE_PORT};
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
 
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -56,6 +62,6 @@ server {
 }
 EOL
 
-echo "Starting nginx..."
+fi
 
-nginx -g "daemon off;"
+service dnsmasq restart && echo "Starting nginx..." && exec nginx -g "daemon off;"
