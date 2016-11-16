@@ -41,6 +41,8 @@ server {
     auth_basic "${PROXY_AUTH_TITLE}";
     auth_basic_user_file ${NGINX_PASSWORD_FILE};
 
+    client_max_body_size 100M;
+
     resolver 127.0.0.1 valid=5s;
 
     set \$dn "${SERVICE_HOST}";
