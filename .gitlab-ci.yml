@@ -1,19 +1,17 @@
-variables:
-  IMAGE: $REGISTRY_HOST/stack/auth-proxy
-
-before_script:
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $REGISTRY_HOST
-
 build-master:
-  tags: [shell]
+  tags:
+    - docker-builder
   script:
-    - docker build -t $IMAGE:latest .
-    - docker push $IMAGE:latest
+    - docker build -t $CI_REGISTRY_IMAGE .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE
 
 build-tag:
-  tags: [shell]
+  tags:
+    - docker-builde
   script:
-    - docker build -t $IMAGE:$CI_BUILD_TAG .
-    - docker push $IMAGE:$CI_BUILD_TAG
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   only:
     - tags
