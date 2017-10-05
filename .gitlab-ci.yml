@@ -5,6 +5,8 @@ build-master:
     - docker build --force-rm --pull -t $CI_REGISTRY_IMAGE .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE
+  only:
+    - master
 
 build-tag:
   tags:
