@@ -31,6 +31,13 @@ if [ -z "${PROXY_AUTH_TITLE}" ]; then
     PROXY_AUTH_TITLE="Protected Service"
 fi
 
+if [ -z "${NGINX_CLIENT_MAX_BODY_SIZE}" ]; then
+    NGINX_CLIENT_MAX_BODY_SIZE="100M"
+fi
+if [ -z "${NGINX_CLIENT_BODY_TIMEOUT}" ]; then
+    NGINX_CLIENT_BODY_TIMEOUT="60s"
+fi
+
 htpasswd -b -c ${NGINX_PASSWORD_FILE} ${PROXY_AUTH_USERNAME} ${PROXY_AUTH_PASSWORD}
 
 cat > /etc/nginx/conf.d/default.conf <<EOL
@@ -41,7 +48,8 @@ server {
     auth_basic "${PROXY_AUTH_TITLE}";
     auth_basic_user_file ${NGINX_PASSWORD_FILE};
 
-    client_max_body_size 100M;
+    client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
+    client_body_timeout ${NGINX_CLIENT_BODY_TIMEOUT};
 
     resolver 127.0.0.1 valid=5s;
 
