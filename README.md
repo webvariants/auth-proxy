@@ -2,19 +2,17 @@
 
     auth-proxy:
       environment:
-    #    VIRTUAL_HOST: [...]
-    #    LETSENCRYPT_HOST: [...]
-    #    LETSENCRYPT_EMAIL: [...]
-
         PROXY_AUTH_USERNAME: [...]
         PROXY_AUTH_PASSWORD: [...]
         PROXY_AUTH_TITLE: "My Place"
         # PROXY_AUTH_DISABLE: 1
 
-        SERVICE_HOST: [...] # target hostname
-      labels:
-        io.rancher.container.pull_image: always
-      image: git.webvariants.de:4567/stack/auth-proxy:latest
+        SERVICE_HOST: [...] # target service name
+        SERVICE_PORT: 80
+
+        NGINX_CLIENT_MAX_BODY_SIZE: "100M"
+        NGINX_CLIENT_BODY_TIMEOUT: "60s"
+      image: webvariants/auth-proxy:latest
       log_opt:
         max-file: '2'
         max-size: 64k
