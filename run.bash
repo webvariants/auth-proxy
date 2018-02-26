@@ -18,7 +18,7 @@ if [ -z "${SKIP_CONF_GEN}" ]; then
         NGINX_CLIENT_BODY_TIMEOUT="60s"
     fi
 
-    if [ -z "${AUTH_DISABLE}" ]; then
+    if [ -z "${PROXY_AUTH_DISABLE}" ]; then
         NGINX_PASSWORD_FILE=/etc/nginx/service.pwd
 
         if [ -z "${NGINX_PASSWORD_FILE}" ]; then

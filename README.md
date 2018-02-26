@@ -5,11 +5,12 @@
     #    VIRTUAL_HOST: [...]
     #    LETSENCRYPT_HOST: [...]
     #    LETSENCRYPT_EMAIL: [...]
-    
+
         PROXY_AUTH_USERNAME: [...]
         PROXY_AUTH_PASSWORD: [...]
         PROXY_AUTH_TITLE: "My Place"
-    
+        # PROXY_AUTH_DISABLE: 1
+
         SERVICE_HOST: [...] # target hostname
       labels:
         io.rancher.container.pull_image: always
@@ -17,4 +18,3 @@
       log_opt:
         max-file: '2'
         max-size: 64k
-
