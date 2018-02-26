@@ -2,51 +2,59 @@
 
 if [ -z "${SKIP_CONF_GEN}" ]; then
 
-NGINX_PASSWORD_FILE=/etc/nginx/service.pwd
+    if [ -z "${SERVICE_HOST}" ]; then
+        echo "Missing SERVICE_HOST"
+        exit 0
+    fi
 
-if [ -z "${NGINX_PASSWORD_FILE}" ]; then
-    exit 0
-fi
+    if [ -z "${SERVICE_PORT}" ]; then
+        SERVICE_PORT=80
+    fi
 
-if [ -z "${PROXY_AUTH_USERNAME}" ]; then
-    echo "Missing PROXY_AUTH_USERNAME"
-    exit 0
-fi
+    if [ -z "${NGINX_CLIENT_MAX_BODY_SIZE}" ]; then
+        NGINX_CLIENT_MAX_BODY_SIZE="100M"
+    fi
+    if [ -z "${NGINX_CLIENT_BODY_TIMEOUT}" ]; then
+        NGINX_CLIENT_BODY_TIMEOUT="60s"
+    fi
 
-if [ -z "${PROXY_AUTH_PASSWORD}" ]; then
-    echo "Missing PROXY_AUTH_PASSWORD"
-    exit 0
-fi
+    if [ -z "${AUTH_DISABLE}" ]; then
+        NGINX_PASSWORD_FILE=/etc/nginx/service.pwd
 
-if [ -z "${SERVICE_HOST}" ]; then
-    echo "Missing SERVICE_HOST"
-    exit 0
-fi
+        if [ -z "${NGINX_PASSWORD_FILE}" ]; then
+            exit 0
+        fi
 
-if [ -z "${SERVICE_PORT}" ]; then
-    SERVICE_PORT=80
-fi
+        if [ -z "${PROXY_AUTH_USERNAME}" ]; then
+            echo "Missing PROXY_AUTH_USERNAME"
+            exit 0
+        fi
 
-if [ -z "${PROXY_AUTH_TITLE}" ]; then
-    PROXY_AUTH_TITLE="Protected Service"
-fi
+        if [ -z "${PROXY_AUTH_PASSWORD}" ]; then
+            echo "Missing PROXY_AUTH_PASSWORD"
+            exit 0
+        fi
 
-if [ -z "${NGINX_CLIENT_MAX_BODY_SIZE}" ]; then
-    NGINX_CLIENT_MAX_BODY_SIZE="100M"
-fi
-if [ -z "${NGINX_CLIENT_BODY_TIMEOUT}" ]; then
-    NGINX_CLIENT_BODY_TIMEOUT="60s"
-fi
+        if [ -z "${PROXY_AUTH_TITLE}" ]; then
+            PROXY_AUTH_TITLE="Protected Service"
+        fi
 
-htpasswd -b -c ${NGINX_PASSWORD_FILE} ${PROXY_AUTH_USERNAME} ${PROXY_AUTH_PASSWORD}
+        htpasswd -b -c ${NGINX_PASSWORD_FILE} ${PROXY_AUTH_USERNAME} ${PROXY_AUTH_PASSWORD}
 
-cat > /etc/nginx/conf.d/default.conf <<EOL
+        AUTH1="auth_basic \"${PROXY_AUTH_TITLE}\";"
+        AUTH2="auth_basic_user_file ${NGINX_PASSWORD_FILE};"
+    else
+        AUTH1="# auth disabled"
+        AUTH2=""
+    fi
+
+    cat > /etc/nginx/conf.d/default.conf <<EOL
 server {
     listen 80 default_server;
     server_name localhost;
 
-    auth_basic "${PROXY_AUTH_TITLE}";
-    auth_basic_user_file ${NGINX_PASSWORD_FILE};
+    ${AUTH1}
+    ${AUTH2}
 
     client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
     client_body_timeout ${NGINX_CLIENT_BODY_TIMEOUT};
