@@ -18,6 +18,10 @@ if [ -z "${SKIP_CONF_GEN}" ]; then
         NGINX_CLIENT_BODY_TIMEOUT="60s"
     fi
 
+    if [ -z "${NGINX_DNS_IP}" ]; then
+        NGINX_DNS_IP="127.0.0.11"
+    fi
+
     if [ -z "${PROXY_AUTH_DISABLE}" ]; then
         NGINX_PASSWORD_FILE=/etc/nginx/service.pwd
 
@@ -59,7 +63,7 @@ server {
     client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
     client_body_timeout ${NGINX_CLIENT_BODY_TIMEOUT};
 
-    resolver 127.0.0.1 valid=5s;
+    resolver ${NGINX_DNS_IP} ipv6=off valid=3s;
 
     set \$dn "${SERVICE_HOST}";
 
@@ -82,4 +86,4 @@ EOL
 
 fi
 
-service dnsmasq restart && echo "Starting nginx..." && exec nginx -g "daemon off;"
+exec nginx -g "daemon off;"

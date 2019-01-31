@@ -1,8 +1,6 @@
-FROM nginx:1.13
+FROM nginx:mainline
 
-RUN apt-get update && apt-get install -y apache2-utils dnsmasq && rm -r /var/lib/apt/lists/*
-
-RUN echo "\n\n# Docker extra config \nuser=root\naddn-hosts=/etc/hosts\n" >> /etc/dnsmasq.conf
+RUN apt-get update && apt-get install -y apache2-utils && rm -r /var/lib/apt/lists/*
 
 COPY run.bash /run.bash
 
